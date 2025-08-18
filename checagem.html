@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Pré-Checagem da Consulta Online</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; margin: 40px; }
+    .ok { color: green; font-weight: bold; }
+    .erro { color: red; font-weight: bold; }
+    video { margin-top: 20px; border: 2px solid #333; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h2>🔍 Pré-Checagem da Consulta Online</h2>
+  <p>Vamos verificar sua câmera, microfone e internet.</p>
+
+  <button onclick="checarTudo()">Iniciar Checagem</button>
+  <div id="resultado"></div>
+  <video id="video" width="320" height="240" autoplay></video>
+
+  <script>
+    async function checarTudo() {
+      document.getElementById("resultado").innerHTML = "⏳ Testando...";
+
+      let resultados = [];
+
+      // Testar câmera e microfone
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        document.getElementById("video").srcObject = stream;
+        resultados.push('<p class="ok">✅ Câmera e microfone detectados.</p>');
+      } catch (e) {
+        resultados.push('<p class="erro">❌ Erro ao acessar câmera/microfone: ' + e.message + '</p>');
+      }
+
+      // Testar internet (latência até o Google)
+      let inicio = performance.now();
+      try {
+        await fetch("https://www.google.com", { mode: 'no-cors' });
+        let fim = performance.now();
+        let tempo = (fim - inicio).toFixed(2);
+        resultados.push('<p class="ok">✅ Internet funcionando (latência: ' + tempo + ' ms).</p>');
+      } catch (e) {
+        resultados.push('<p class="erro">❌ Sem internet ou conexão instável.</p>');
+      }
+
+      document.getElementById("resultado").innerHTML = resultados.join("");
+    }
+  </script>
+</body>
+</html>
